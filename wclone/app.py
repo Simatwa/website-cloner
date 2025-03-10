@@ -5,6 +5,7 @@ import shutil
 import codecs
 import sys
 import os
+import re
 import logging
 import cloudscraper
 from bs4 import BeautifulSoup
@@ -78,9 +79,11 @@ class Extractor:
         urls = []
         for link_tag in self.soup.find_all("a"):
             # if the tag has the attribute 'href'
-            link_url = link_tag.attrs.get("href")
+            link_url: str = link_tag.attrs.get("href")
             if link_url:
                 if not link_url.startswith("http"):
+                    if re.match(r"(tel|mailto):.*", link_url, re.IGNORECASE):
+                        continue
                     link_url = urljoin(self.url, link_tag.attrs.get("href"))
 
                 new_url = self.url_to_local_path(link_url, keepQuery=True)
